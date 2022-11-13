@@ -1,0 +1,102 @@
+buildscript {
+	ext.kotlinVersion = '1.7.21'
+	
+	repositories {
+		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org' }
+		mavenLocal()
+		google()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+	}
+	dependencies {
+		
+		// This follows advice from https://blog.gradle.org/log4j-vulnerability
+		constraints {
+			classpath("org.apache.logging.log4j:log4j-core") {
+				version {
+					strictly("[2.18, 3[")
+					prefer("2.18.0")
+				}
+				because("CVE-2021-44228, CVE-2021-45046, CVE-2021-45105: Log4j vulnerable to remote code execution and other critical security vulnerabilities")
+			}
+		}
+		
+		classpath "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:${kotlinVersion}"
+	}
+}
+
+
+allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+}
+
+configure(subprojects) {
+	apply plugin: 'java-library'
+	apply plugin: 'org.jetbrains.kotlin.jvm'
+	
+	dependencies {
+		// This follows advice from https://blog.gradle.org/log4j-vulnerability
+		constraints {
+			implementation("org.apache.logging.log4j:log4j-core") {
+				version {
+					strictly("[2.18, 3[")
+					prefer("2.18.0")
+				}
+				because("CVE-2021-44228, CVE-2021-45046, CVE-2021-45105: Log4j vulnerable to remote code execution and other critical security vulnerabilities")
+			}
+			
+			implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}'
+		}
+	}
+	
+	sourceCompatibility = 1.8
+	
+	compileJava {
+		options.incremental = true
+	}
+	
+	compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+	
+    eclipse {
+    	classpath {
+    		containers 'org.jetbrains.kotlin.core.KOTLIN_CONTAINER'
+    	}
+    }
+
+}
+
+subprojects {
+	version = '0.0.1'
+	ext.appName = 'Polymorph'
+	repositories {
+		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org' }
+		mavenLocal()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://jitpack.io' }
+	}
+}
+
+eclipse.project.name = 'Polymorph' + '-parent'
+
+eclipse {
+//	classpath {
+//		containers 'org.jetbrains.kotlin.core.KOTLIN_CONTAINER'
+//	}
+//	project {
+//		buildCommand 'org.jetbrains.kotlin.ui.kotlinBuilder'
+//		natures 'org.jetbrains.kotlin.core.kotlinNature'
+//		natures 'org.eclipse.jdt.core.javanature'
+//		linkedResource name: 'kotlin_bin', type: '2', locationUri: 'org.jetbrains.kotlin.core.filesystem:/aio/kotlin_bin'
+//	}
+}
